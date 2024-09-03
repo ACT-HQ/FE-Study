@@ -3,7 +3,9 @@
         <div v-if="isVisible" class="modal-overlay" @click="handleClose">
             <div class="modal-content" @click.stop>
                 <button class="close-button" @click="handleClose">X</button>
-                <slot></slot> <!-- 부모 컴포넌트에서 전달한 내용 -->
+                <h2>채팅 방 생성</h2>
+                <input v-model="newRoomName" placeholder="채팅 방 이름을 입력하세요"/>
+                <button @click="createRoom">생성</button>
             </div>
         </div>
     </teleport>
@@ -16,7 +18,15 @@ const props = defineProps({
     isVisible: Boolean,
 });
 
-const emit = defineEmits(['close']);
+const newRoomName = ref('')
+const emit = defineEmits(['close', 'create-room']);
+
+const createRoom = () => {
+    if(newRoomName.value){
+        emit('create-room',newRoomName.value)
+        newRoomName.value = ''
+    }
+}
 
 const handleClose = () => {
     emit('close');
