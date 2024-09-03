@@ -8,18 +8,14 @@
             </div>
         </li>
     </ul>
-    <CreateModal :isVisible="isModalVisible" :onClose="closeModal">
-        <h2>채팅 방 생성</h2>
-        <input v-model="newRoomName" placeholder="채팅 방 이름을 입력하세요"/>
-        <button @click="createRoom">생성</button>
-    </CreateModal>
+    <!-- emit(create-room) 으로 component에서 입력된 input값 전달   -->
+    <CreateModal :isVisible="isModalVisible"  @close="closeModal" @create-room="createRoom" />
 </template>
 
 <script setup lang="ts">
 import CreateModal from "~/components/CreateModal.vue";
 
 const isModalVisible = ref(false)
-const newRoomName = ref('')
 const rooms = ref([
     {id : '', name : ''}
 ])
@@ -31,12 +27,10 @@ function closeModal(){
     isModalVisible.value = false
 }
 
-
-function createRoom(){
+function createRoom(roomName){
     closeModal()
     const newId = rooms.value.length + 1
-    rooms.value.push({id: newId, name: `${newRoomName.value}`})
-    newRoomName.value = ''
+    rooms.value.push({id: newId, name: `${roomName}`})
 }
 
 </script>
