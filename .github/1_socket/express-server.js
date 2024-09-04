@@ -33,24 +33,35 @@ const chatNameSpace = io.of('/room');
 chatNameSpace.on('connection', (socket) => {
     console.log('New client connected');
 
-    // 클라이언트가 방에 들어갈 때
-    socket.on('join', (roomId) => {
-        socket.join(roomId);
-        console.log(`Client joined room ${roomId}`);
+    // 클라이언트가 방에 들어갈 때 - 그룹일때 인원 수 지정 추가 예정
+    socket.on('join', (data) => {
+        const roomId = data.roomId.toString();
+        const roomName = data.roomName.toString();
+        const roomType = data.roomType.toString();
+
+        const roomFilter = `${roomId}_${roomName}_${roomType}`; // 동일한 채팅방 필터링
+        socket.join(roomFilter);
+        console.log(`Client joined room ${roomFilter}`);
 
         // 방에 있는 클라이언트 수
-        const roomClientCount = chatNameSpace.adapter.rooms.get(roomId)?.size || 0;
+        const roomClientCount = chatNameSpace.adapter.rooms.get(roomFilter)?.size || 0;
 
         // 유저 접속 알림
-        chatNameSpace.to(roomId).emit('message', `새로운 유저가 접속했습니다. 현재 유저 ${roomClientCount} 명`);
+        chatNameSpace.to(roomFilter).emit('message', `새로운 유저가 접속했습니다. 현재 유저 ${roomClientCount} 명`);
     });
+
 
     // 클라이언트가 메시지를 보낼 때
     socket.on('message', (data) => {
-        const { roomId, message } = data;
-        console.log(`Message from room ${roomId}: ${message}`);
+        const roomId = data.roomId.toString();
+        const roomName = data.roomName.toString();
+        const roomType = data.roomType.toString();
+        const message = data.message
+        const roomFilter = `${roomId}_${roomName}_${roomType}`;
+
+        console.log(`Message from room ${roomFilter}: ${message}`);
         // 특정 방에 있는 모든 클라이언트에게 메시지를 전송합니다.
-        chatNameSpace.to(roomId).emit('message', message);
+        chatNameSpace.to(roomFilter).emit('message', message);
     });
 
     // 유저가 연결을 끊었을 때
