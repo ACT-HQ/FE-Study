@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Chat</h1>
+        <h1>{{ roomName }} - {{ roomType}} 톡방</h1>
         <div>
             <input v-model="nickname" placeholder="이름" />
             <input v-model="message" placeholder="메세지" />
@@ -19,6 +19,9 @@ import { io } from 'socket.io-client';
 
 const route = useRoute();
 const roomId = ref(route.params.id); // URL에서 roomId 가져오기
+const roomName = ref(route.params.name); // URL에서 roomId 가져오기
+const roomType = ref(route.params.type); // URL에서 roomId 가져오기
+
 
 const socket = ref(null);
 const nickname = ref('');
@@ -27,45 +30,66 @@ const chatLog = ref([]);
 
 
 onMounted(() => {
-    // 서버 주소와 옵션으로 소켓 연결 설정
     socket.value = io('http://localhost:8000/room', {
-        reconnectionAttempts: 3,  // 재연결 시도 횟수
-        reconnectionDelay: 1000,  // 재연결 딜레이(ms)
-        withCredentials: true,    // CORS 설정이 서버와 일치해야 함
+        reconnectionAttempts: 3,
+        reconnectionDelay: 1000,
+        withCredentials: true,
     });
 
-    // 연결 성공 시 실행
     socket.value.on('connect', () => {
         console.log('Connected to WebSocket server');
-        socket.value.emit('join',roomId.value)
+        joinRoom();
     });
 
-    // 연결 종료 시 실행
     socket.value.on('disconnect', () => {
         console.log('Disconnected from WebSocket server');
     });
 
-    // 서버로부터 메시지를 수신할 때 실행
     socket.value.on('message', (message) => {
         chatLog.value.push(message);
     });
 });
-console.log('socketValue',socket)
 
-watch(() => route.params.name, (roomId) => {
-    roomId.value = roomId;
-    if(socket.value){
-        socket.value.emit('join',roomId.value)
+watch(() => route.query, (newQuery) => {
+        roomId.value = newQuery.id;
+        roomName.value = newQuery.name;
+        roomType.value = newQuery.type;
+        joinRoom();
+    },
+    { immediate: true }
+);
+
+function joinRoom() {
+    if (socket.value) {
+        socket.value.emit('join', {
+            roomId: roomId.value.toString(),  // 문자로 데이터 전달 -> 서버
+            roomName: roomName.value.toString(),
+            roomType: roomType.value.toString()
+        });
     }
-})
+}
 function sendMessage() {
-    if (socket.value && socket.value.connected) {
-        const formattedMessage = `${nickname.value}: ${message.value}`;
-        socket.value.emit('message', { roomId: roomId.value, message : formattedMessage});
-        console.log(roomId.value)
-        message.value = ''; // 메시지 전송 후 입력 필드를 비움
+    if(nickname.value){
+        if(message.value) {
+            if (socket.value && socket.value.connected) {
+                const formattedMessage = `${nickname.value}: ${message.value}`;
+                socket.value.emit('message', {
+                    roomId: roomId.value.toString(),  // 문자로 데이터 전달 -> 서버
+                    roomName: roomName.value.toString(),
+                    roomType: roomType.value.toString(),
+                    message: formattedMessage
+                });
+                console.log(roomId.value)
+                message.value = ''; // 메시지 전송 후 입력 필드를 비움
+            } else {
+                console.error('WebSocket is not connected');
+            }
+        } else {
+            alert('말말말')
+        }
     } else {
-        console.error('WebSocket is not connected');
+        alert('닉네임을 입력해주세요')
     }
+
 }
 </script>
