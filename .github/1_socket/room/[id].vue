@@ -19,8 +19,9 @@ import { io } from 'socket.io-client';
 
 const route = useRoute();
 const roomId = ref(route.params.id); // URL에서 roomId 가져오기
-const roomName = ref(route.params.name); // URL에서 roomId 가져오기
-const roomType = ref(route.params.type); // URL에서 roomId 가져오기
+const roomName = ref(route.params.name);
+const roomType = ref(route.params.type);
+const roomLimit = ref(route.params.limit)
 
 
 const socket = ref(null);
@@ -54,6 +55,7 @@ watch(() => route.query, (newQuery) => {
         roomId.value = newQuery.id;
         roomName.value = newQuery.name;
         roomType.value = newQuery.type;
+        roomLimit.value = newQuery.limit
         joinRoom();
     },
     { immediate: true }
@@ -64,7 +66,8 @@ function joinRoom() {
         socket.value.emit('join', {
             roomId: roomId.value.toString(),  // 문자로 데이터 전달 -> 서버
             roomName: roomName.value.toString(),
-            roomType: roomType.value.toString()
+            roomType: roomType.value.toString(),
+            roomLimit: roomLimit.value
         });
     }
 }
@@ -77,6 +80,7 @@ function sendMessage() {
                     roomId: roomId.value.toString(),  // 문자로 데이터 전달 -> 서버
                     roomName: roomName.value.toString(),
                     roomType: roomType.value.toString(),
+                    roomLimit: roomLimit.value,
                     message: formattedMessage
                 });
                 console.log(roomId.value)
