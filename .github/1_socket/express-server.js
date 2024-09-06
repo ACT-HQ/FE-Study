@@ -38,16 +38,25 @@ chatNameSpace.on('connection', (socket) => {
         const roomId = data.roomId.toString();
         const roomName = data.roomName.toString();
         const roomType = data.roomType.toString();
+        const roomLimit = parseInt(data.roomLimit);
 
-        const roomFilter = `${roomId}_${roomName}_${roomType}`; // 동일한 채팅방 필터링
+        const roomFilter = `${roomId}_${roomName}_${roomType}_${roomLimit}`; // 동일한 채팅방 필터링
         socket.join(roomFilter);
         console.log(`Client joined room ${roomFilter}`);
 
         // 방에 있는 클라이언트 수
         const roomClientCount = chatNameSpace.adapter.rooms.get(roomFilter)?.size || 0;
-
+        // 인원수 제한
+        if(roomLimit && roomClientCount > roomLimit){
+            // socket.emit('error', '입장 가능 인원이 가득 찼습니다.');
+            socket.emit('roomStatus',{isFull: true, message: `입장 가능 인원이 가득 찼습니다. (${roomClientCount - 1} / ${roomLimit})`})
+            return;
+        } else {
+            socket.emit('roomStatus',{isFull: false, message: `입장`})
+        }
         // 유저 접속 알림
         chatNameSpace.to(roomFilter).emit('message', `새로운 유저가 접속했습니다. 현재 유저 ${roomClientCount} 명`);
+
     });
 
 
@@ -56,8 +65,10 @@ chatNameSpace.on('connection', (socket) => {
         const roomId = data.roomId.toString();
         const roomName = data.roomName.toString();
         const roomType = data.roomType.toString();
+        const roomLimit = parseInt(data.roomLimit);
+
         const message = data.message
-        const roomFilter = `${roomId}_${roomName}_${roomType}`;
+        const roomFilter = `${roomId}_${roomName}_${roomType}_${roomLimit}`;
 
         console.log(`Message from room ${roomFilter}: ${message}`);
         // 특정 방에 있는 모든 클라이언트에게 메시지를 전송합니다.
