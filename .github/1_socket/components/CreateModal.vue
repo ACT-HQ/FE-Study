@@ -13,7 +13,7 @@
                     />
                     {{ type.name }}
                 </div>
-                <input v-if="createRoomType === '그룹'" placeholder="인원 수" v-model="peopleCount"><br/>
+                <input v-if="createRoomType === '그룹'" placeholder="인원 수" v-model="peopleLimit"><br/>
                 <input v-model="newRoomName" placeholder="채팅 방 이름을 입력하세요"/>
                 <button @click="createRoom">생성</button>
             </div>
@@ -35,16 +35,17 @@ const roomType = ref([
 ])
 const createRoomType = ref('')
 const newRoomName = ref('')
-const peopleCount = ref('')
+const peopleLimit = ref('')
 const emit = defineEmits(['close', 'create-room']);
 
 const createRoom = () => {
     if(createRoomType.value){
         if(newRoomName.value){
-            emit('create-room',{name : newRoomName.value, type : createRoomType.value, cnt : peopleCount.value})
+            emit('create-room',{name : newRoomName.value, type : createRoomType.value, limit : peopleLimit.value})
             console.log(createRoomType.value)
             newRoomName.value = ''
             createRoomType.value = ''
+            peopleLimit.value = ''
         } else {
             alert('채팅방 이름을 입력 하세요.')
         }
@@ -58,6 +59,7 @@ const handleClose = () => {
     emit('close');
     newRoomName.value = ''
     createRoomType.value = ''
+    peopleLimit.value = ''
 };
 </script>
 
