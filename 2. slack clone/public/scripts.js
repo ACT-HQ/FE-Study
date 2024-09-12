@@ -5,6 +5,10 @@ socket.on('connect', (message) => {
     socket.emit('clientConnected');
 })
 
-socket.emit('welcome', (data) => {
-    console.log(data);
+socket.on('nsList', (nsData) => {
+    console.log(nsData);
+    const nameSpacesDiv = document.querySelector('.namespaces');
+    nsData.forEach((ns) => {
+        nameSpacesDiv.innerHTML += `<div class="namespace" ns="${ns.name}"><img src="${ns.image}"></div>`;
+    })
 })
