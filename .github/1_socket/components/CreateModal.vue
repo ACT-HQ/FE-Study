@@ -13,8 +13,9 @@
                     />
                     {{ type.name }}
                 </div>
-                <input v-if="createRoomType === '그룹'" placeholder="인원 수" v-model="peopleCount"><br/>
-                <input v-model="newRoomName" placeholder="채팅 방 이름을 입력하세요"/>
+                <input v-if="createRoomType === '그룹'" placeholder="인원 수" v-model="peopleLimit">
+                <input v-if="createRoomType === '비밀'" placeholder="채팅 방 비밀번호를 설정해주세요." v-model="newRoomPass"/><br/>
+                <input v-model="newRoomName" placeholder="채팅 방 이름을 입력하세요."/>
                 <button @click="createRoom">생성</button>
             </div>
         </div>
@@ -31,22 +32,30 @@ const props = defineProps({
 
 const roomType = ref([
     {name : '일반'},
-    {name : '그룹'}
+    {name : '그룹'},
+    {name : '비밀'}
 ])
 const createRoomType = ref('')
 const newRoomName = ref('')
-const peopleCount = ref('')
+const newRoomPass = ref('')
+const peopleLimit = ref('')
 const emit = defineEmits(['close', 'create-room']);
 
 const createRoom = () => {
-    if(createRoomType.value){
-        if(newRoomName.value){
-            emit('create-room',{name : newRoomName.value, type : createRoomType.value, cnt : peopleCount.value})
-            console.log(createRoomType.value)
-            newRoomName.value = ''
-            createRoomType.value = ''
+    if (createRoomType.value) {
+        if(createRoomType.value === '비밀' && newRoomPass.value === ''){
+            alert('비밀번호를 설정해 주세요')
         } else {
-            alert('채팅방 이름을 입력 하세요.')
+            if (newRoomName.value) {
+                emit('create-room', {name: newRoomName.value, type: createRoomType.value, limit: peopleLimit.value, pass: newRoomPass.value})
+                console.log(createRoomType.value)
+                newRoomName.value = ''
+                createRoomType.value = ''
+                peopleLimit.value = ''
+                newRoomPass.value = ''
+            } else {
+                alert('채팅방 이름을 입력 하세요.')
+            }
         }
     } else {
         alert('채팅방 타입을 선택 하세요.')
@@ -58,6 +67,7 @@ const handleClose = () => {
     emit('close');
     newRoomName.value = ''
     createRoomType.value = ''
+    peopleLimit.value = ''
 };
 </script>
 
