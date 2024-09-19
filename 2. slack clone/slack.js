@@ -33,7 +33,19 @@ io.on('connection', (socket) => {
 namespaces.forEach((namespace) => {
     io.of(namespace.endpoint).on('connection', (socket) => {
         console.log(`${socket.id} has connected to ${namespace.endpoint}`);
-        socket.on('joinRoom', (roomTitle) => {
+        socket.on('joinRoom', async (roomTitle, ackCallback) => {
+            // Room에 join하기 전에, client는 하나의 Room에만 참여할 수 있기 때문에 모든 방에서 leave한다.
+            // socket.rooms -> Type: Set
+            const rooms = socket.rooms;
+
+            let i = 0;
+            rooms.forEach(room => {
+                if(i !== 0) {
+                    socket.leave(room);
+                }
+                i++;
+            })
+
             // Join Room
             // NOTE: roomTitle is coming from the client -> Not Safe
             socket.join(roomTitle);
