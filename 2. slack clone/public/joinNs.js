@@ -5,13 +5,23 @@ const joinNs = (element, nsData) => {
 
     const roomList = document.querySelector('.room-list');
     roomList.innerHTML = ``;
-    rooms.forEach(room => {
+
+    let firstRoom;
+
+    rooms.forEach((room, index) => {
+        if(index === 0) {
+            firstRoom = room.roomTitle;
+        }
+
         roomList.innerHTML += `<li class="room" namespaceId=${room.namespaceId}>
                 <span class="fa-solid fa-${room.privateRoom ? 'lock' : 'globe'}"></span>
                 ${room.roomTitle}
             </li>
         `;
     })
+
+    const currentNamespaceId = clickedNs.id;
+    joinRoom(firstRoom, currentNamespaceId);
 
     const roomNodes = document.querySelectorAll('.room');
     Array.from(roomNodes).forEach(roomNode => {
