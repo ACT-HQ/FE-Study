@@ -1,3 +1,5 @@
+const userName = 'den';
+
 /**
  * default path로 항상 main namespace에 join한다.
  * client가 main namespace를 통해 다른 namespace를 가져올 수 있기 때문에.
@@ -7,7 +9,25 @@ const socket = io('http://localhost:9000');
 const nameSpaceSockets = [];
 const listeners = {
     nsChange: [],
+    messageToRoom: [],
 }
+
+/**
+ * Global 변수인 현재 namespace Id
+ * -> namespace를 클릭하면 app 전반에 걸쳐 broadcast 하기 위한 변수
+ */
+let selectedNsId = 0;
+
+document.querySelector('#message-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const newMessage = document.querySelector('#user-message').value;
+    nameSpaceSockets[selectedNsId].emit('newMessageToRoom', {
+        newMessage,
+        data: Date.now(),
+        avatar: 'https://via.placeholder.com/30',
+        userName,
+    })
+})
 
 const addListeners = (nsId) => {
     if(!listeners.nsChange[nsId]){
@@ -16,6 +36,12 @@ const addListeners = (nsId) => {
             console.log(data);
         })
         listeners.nsChange[nsId] = true;
+    }
+    if(!listeners.messageToRoom[nsId]){
+        nameSpaceSockets[nsId].on('messageToRoom', (messageObj) => {
+            console.log(messageObj);
+        })
+        listeners.messageToRoom[nsId] = true;
     }
 };
 

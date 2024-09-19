@@ -58,6 +58,18 @@ namespaces.forEach((namespace) => {
                 numUsers: socketCount,
             })
         })
+
+        socket.on('newMessageToRoom', (messageObj) => {
+            console.log(messageObj);
+
+            /**
+             * client로부터 온 이 메시지를 이 Room에 있는 모든 client에게 broadcast 해야 한다.
+             * 근데 어떻게?
+             */
+            const rooms = socket.rooms;
+            const currentRoom = [...rooms][1];
+            io.of(namespace.endpoint).in(currentRoom).emit('messageToRoom', messageObj);
+        })
     })
 })
 
