@@ -6,7 +6,21 @@ const joinNs = (element, nsData) => {
     const roomList = document.querySelector('.room-list');
     roomList.innerHTML = ``;
     rooms.forEach(room => {
-        roomList.innerHTML += `<li><span class="glyphicon glyphicon-globe"></span>${room.roomTitle}</li>`;
+        roomList.innerHTML += `<li class="room" namespaceId=${room.namespaceId}>
+                <span class="fa-solid fa-${room.privateRoom ? 'lock' : 'globe'}"></span>
+                ${room.roomTitle}
+            </li>
+        `;
+    })
+
+    const roomNodes = document.querySelectorAll('.room');
+    Array.from(roomNodes).forEach(roomNode => {
+        roomNode.addEventListener('click', (e) => {
+            const roomTitle = e.target.innerText;
+            const nameSpaceId = roomNode.getAttribute('namespaceId');
+
+            joinRoom(roomTitle, nameSpaceId);
+        })
     })
 
     localStorage.setItem('lastNs', nsEndpoint);

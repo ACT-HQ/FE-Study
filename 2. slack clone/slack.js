@@ -33,6 +33,11 @@ io.on('connection', (socket) => {
 namespaces.forEach((namespace) => {
     io.of(namespace.endpoint).on('connection', (socket) => {
         console.log(`${socket.id} has connected to ${namespace.endpoint}`);
+        socket.on('joinRoom', (roomTitle) => {
+            // Join Room
+            // NOTE: roomTitle is coming from the client -> Not Safe
+            socket.join(roomTitle);
+        })
     })
 })
 
