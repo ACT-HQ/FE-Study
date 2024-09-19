@@ -37,6 +37,14 @@ namespaces.forEach((namespace) => {
             // Join Room
             // NOTE: roomTitle is coming from the client -> Not Safe
             socket.join(roomTitle);
+
+            // 이 방의 인원을 보내준다.
+            const sockets = await io.of(namespace.endpoint).in(roomTitle).fetchSockets();
+            const socketCount = sockets.length;
+
+            ackCallback({
+                numUsers: socketCount,
+            })
         })
     })
 })
