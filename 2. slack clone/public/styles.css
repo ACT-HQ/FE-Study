@@ -64,7 +64,7 @@ body{
     padding-top: 10px;
 }
 .chat-panel .curr-room-text{
-    color: #fff;
+    color: #000;
     font-size: 26px;
 }
 .curr-room-num-users, .search{
